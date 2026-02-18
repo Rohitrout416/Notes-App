@@ -1,0 +1,34 @@
+.Note{
+    box-shadow: 0 4px 8px rgba(0, 0 ,0, 0.3);
+    padding: 10px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    background-color: rgb(255, 255, 147);
+    width: 250px;
+    height: 200px;
+    overflow: scroll;
+    border-radius: 10px;
+    gap: 10px 20px;
+    font-family: 'Inter', sans-serif;
+}
+
+.Note h3{
+    margin: 0;
+    font-size: 1.2rem;
+}
+.Note .title{
+    display: flex;
+    margin-top: 10px;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px rgba(0, 0, 0, 0.1);
+}
+
+.Note .title p{
+    color: #666;
+    margin: 0;
+}
