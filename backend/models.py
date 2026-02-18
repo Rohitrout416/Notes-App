@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from datetime import datetime
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -9,7 +10,7 @@ class Note(Base):
     title = Column(String, index=True)
     body = Column(String)
     user_id = Column(Integer, ForeignKey("users.id"))
-    created_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.now)
     
     user = relationship("User", back_populates="notes")
 
