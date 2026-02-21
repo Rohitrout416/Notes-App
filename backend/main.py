@@ -2,10 +2,25 @@ from fastapi import FastAPI, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from database import get_db, engine
 import models, schemas
+from typing import List
+from fastapi.middleware.cors import CORSMiddleware
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:8000",
+    "http://localhost:5173"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,      # Only these domains can access the API
+    allow_credentials=True,     # Necessary if you use cookies or Auth headers
+    allow_methods=["*"],        # Allows GET, POST, etc.
+    allow_headers=["*"],        # Allows any headers (like Content-Type)
+)
 
 # create note
 @app.post('/notes/', response_model = schemas.Note)
@@ -37,6 +52,13 @@ async def read_note(note_id: int, db: Session = Depends(get_db)):
 
     if not db_note:
         raise HTTPException(status_code=404, detail="Note Not Found")
+    return db_note
+
+#get all notes
+@app.get('/notes/', response_model=List[schemas.Note])
+async def read_all_notes(db: Session = Depends(get_db)):
+    db_note = db.query(models.Note).order_by(models.Note.created_at.desc()).all()
+
     return db_note
 
 # get user
