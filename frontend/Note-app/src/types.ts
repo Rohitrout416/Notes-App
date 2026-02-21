@@ -1,4 +1,4 @@
-interface Note {
+export interface Note {
     id: number,
     title: string,
     body: string,
@@ -6,4 +6,10 @@ interface Note {
     user_id: number
 }
 
-export type { Note };
+export interface NoteFormProps{
+    onNoteAdded: (note: Note)=> void
+}
+
+export interface NoteCardProps extends Note{
+    onNoteDelete: (id: number) => void
+}
