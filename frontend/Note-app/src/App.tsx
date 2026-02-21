@@ -3,58 +3,43 @@ import type { Note } from "./types";
 import './components/NoteCard.css'
 import './App.css'
 import NoteForm from "./components/NoteForm";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 
 export default function App(){
-    const notes: Note[] = [{
-        title: "Note 1",
-        body: "Body 1",
-        created_at: "2022-01-01",
-        user_id: 1,
-        id: 1
-    },
-{
-        title: "Note 1",
-        body: "Body 1",
-        created_at: "2022-01-01",
-        user_id: 1,
-        id: 1
-    },
-{
-        title: "Note 1",
-        body: "Body 1",
-        created_at: "2022-01-01",
-        user_id: 1,
-        id: 1
-    },
-{
-        title: "Note 1",
-        body: "Body 1",
-        created_at: "2022-01-01",
-        user_id: 1,
-        id: 1
-    },
-{
-        title: "Note 1",
-        body: "Body 1",
-        created_at: "2022-01-01",
-        user_id: 1,
-        id: 1
-    }]
+    const [notes, setNotes] = useState<Note[]>([]);
+    
+        useEffect(()=>{
+            fetch("http://localhost:8000/notes/")
+            .then(res => res.json())
+            .then(data => setNotes(data))
+            .catch(err => console.error(err));
+        },[]);
+    
 
     const [showForm, setShowForm] = useState(false);
+
+    const onNoteAdded = (newNote: Note) =>{
+        setNotes([newNote, ...notes])
+        setShowForm(false)
+    }
+    
+    const onNoteDelete = (id: number) =>{
+        setNotes(notes.filter(note => note.id !== id))
+    }
+
     return(
         <div>
             <div className="CreateNote">
                 <div onClick={()=>setShowForm(!showForm)}>+</div>
                 {/* {showForm ? <NoteForm /> : <></>} */}
-                {showForm && <NoteForm />}
+                {showForm && <NoteForm onNoteAdded = {onNoteAdded}/>}
 
             </div>
             <div className="NoteGrid">
 
                 {notes.map(note =>(
-                    < NoteCard key={note.id} {...note} />
+                    < NoteCard onNoteDelete={onNoteDelete} key={note.id} {...note} />
                 ))}
             </div> 
             
