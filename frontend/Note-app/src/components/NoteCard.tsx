@@ -1,8 +1,8 @@
 import type { NoteCardProps } from "../types"
-export default function NoteCard({id, title, body, created_at, onNoteDelete}: NoteCardProps){
+export default function NoteCard({id, title, body, created_at, onNoteDelete, onNoteEdit}: NoteCardProps){
     const dateobj = new Date(created_at)
 
-    const deleteNote = (id: number)=>{
+    const deleteNote = (id: number, e: React.MouseEvent)=>{
         fetch(`http://localhost:8000/notes/${id}`, {
             method:"DELETE",
             headers:{
@@ -11,12 +11,15 @@ export default function NoteCard({id, title, body, created_at, onNoteDelete}: No
         }).then(() => onNoteDelete(id))
         .catch(err => console.log(err))
         
-
-
+        e.stopPropagation();
     }
+
+    // const editNote = (id: number)=>{
+        
+    // }
     return(
-        <div className="Note">
-            <div className="deleteNote" onClick={()=>deleteNote(id)}>x</div>
+        <div className="Note" onClick={()=>onNoteEdit({id, title, body, created_at, user_id: 1})}>
+            <span className="deleteNote" onClick={(e)=>deleteNote(id, e)}>❌</span>
             <div className="title">
                 <h3>{title}</h3>
                 <p>{dateobj.toDateString()}</p>

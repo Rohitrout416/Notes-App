@@ -7,9 +7,13 @@ export interface Note {
 }
 
 export interface NoteFormProps{
-    onNoteAdded: (note: Note)=> void
+    onNoteAdded: (note: Note)=> void,
+    onNoteUpdated: (note: Note)=> void,
+    onCancel: () => void,
+    editingNote : Note | null
 }
 
 export interface NoteCardProps extends Note{
-    onNoteDelete: (id: number) => void
+    onNoteDelete: (id: number) => void,
+    onNoteEdit :(note: Note) => void
 }
