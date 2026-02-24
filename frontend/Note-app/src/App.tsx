@@ -29,10 +29,12 @@ export default function App(){
     const onNoteAdded = (newNote: Note) =>{
         setNotes([newNote, ...notes])
         setShowForm(false)
+        setEditingNote(null);
     }
     
     const handleCancel = () =>{
         setShowForm(false)
+        setEditingNote(null);
     }
     
     const onNoteDelete = (id: number) =>{
@@ -42,6 +44,7 @@ export default function App(){
     const onNoteUpdated = (updatedNote: Note) => {
         setNotes(notes.map(note => note.id === updatedNote.id ? updatedNote : note));
         setShowForm(false);
+        setEditingNote(null);
     }
 
     return(

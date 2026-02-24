@@ -1,72 +1,64 @@
-import React, { useState } from "react"
 import type { NoteFormProps } from "../types"
 
-export default function NoteForm({editingNote, onNoteAdded, onCancel, onNoteUpdated, setIsGlobalLoading, isGlobalLoading}: NoteFormProps){
-    const [title, setTitle] = useState(editingNote ? editingNote.title : "")
-    const [body, setBody] = useState(editingNote ? editingNote.body : "")
+export default function NoteForm({ editingNote, onNoteAdded, onCancel, onNoteUpdated, setIsGlobalLoading }: NoteFormProps) {
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>)=>{
-        e.preventDefault();
-        if(title.trim().length >= 0 && body.trim().length >= 0){
-            alert("Please fill all the fields")
+    const clientAction = async (formData: FormData) => {
+        const title = formData.get("title") as string;
+        const body = formData.get("body") as string;
+
+        if (!title.trim() || !body.trim()) {
+            alert("Please fill all the fields");
             return;
         }
-        
-        if(editingNote){
-            setIsGlobalLoading(true);
 
-            fetch(`http://localhost:8000/notes/${editingNote.id}`, {
-                method: "PATCH",
-                headers:{
-                    "Content-Type" : "application/json"
-                },
-                body: JSON.stringify({
-                    title, body
-                })
-            })
-            .then(res => res.json())
-            .then(data => onNoteUpdated(data))
-            .then(()=> {
-                setTitle("")
-                setBody("")
-            })
-            .then(() => setIsGlobalLoading(false))
-            .catch(() => setIsGlobalLoading(false))
-            .catch(err => console.log(err));
+        setIsGlobalLoading(true);
+
+        try {
+            if (editingNote) {
+                const res = await fetch(`http://localhost:8000/notes/${editingNote.id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title, body })
+                });
+                const data = await res.json();
+                onNoteUpdated(data);
+            } else {
+                const res = await fetch("http://localhost:8000/notes/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title, body, user_id: 1 })
+                });
+                const data = await res.json();
+                onNoteAdded(data);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsGlobalLoading(false);
         }
-        else{
-            setIsGlobalLoading(true);
-    
-            fetch("http://localhost:8000/notes/",{
-                method:"POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    title, body, user_id: 1
-                })
-            }).then(res =>res.json())
-            .then(data => onNoteAdded(data))
-            .then(()=>{
-                setTitle("")
-                setBody("")
-            })
-            .then(() => setIsGlobalLoading(false))
-            .catch(()=> setIsGlobalLoading(false))
-            .catch(err => console.log(err));
-        }
-    }
-    
-    return(
+    };
+
+    return (
         <div className="createForm">
-            <form onSubmit={handleSubmit}>
-                <p className="Heading">Create Note</p>
+            <form action={clientAction}>
+                <p className="Heading">{editingNote ? "Update Note" : "Create Note"}</p>
                 <p className="Label">Title</p>
-                <input type="text" name="title" placeholder="Please enter the title of the note" value={title} onChange={(e)=>setTitle(e.target.value)} />
+                <input
+                    type="text"
+                    name="title"
+                    placeholder="Please enter the title of the note"
+                    defaultValue={editingNote ? editingNote.title : ""}
+                />
                 <p className="Label">Body</p>
-                <textarea name="body" placeholder="Please enter the content of the note" value={body} onChange={(e)=>setBody(e.target.value)}></textarea>
+                <textarea
+                    name="body"
+                    placeholder="Please enter the content of the note"
+                    defaultValue={editingNote ? editingNote.body : ""}
+                ></textarea>
 
-                <button className="submitBtn" type="submit" disabled={isGlobalLoading}>{editingNote ? "Update" :"Create"}</button>
+                <button className="submitBtn" type="submit">
+                    {editingNote ? "Update" : "Create"}
+                </button>
                 <button className="cancelBtn" type="button" onClick={onCancel}>Cancel</button>
             </form>
         </div>
