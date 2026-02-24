@@ -7,7 +7,7 @@ export default function NoteForm({editingNote, onNoteAdded, onCancel, onNoteUpda
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
-        if(!title || !body){
+        if(title.trim().length >= 0 && body.trim().length >= 0){
             alert("Please fill all the fields")
             return;
         }
