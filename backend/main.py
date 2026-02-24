@@ -31,6 +31,8 @@ async def create_note(note: schemas.NoteCreate, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.id == note.user_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail='User doesn\'t exist!')
+    if not note.title or not note.body:
+        raise HTTPException(status_code=400, detail='Title and body are required')
     db.add(db_note)
     db.commit()
     db.refresh(db_note)

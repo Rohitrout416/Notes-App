@@ -1,14 +1,16 @@
 import type { NoteCardProps } from "../types"
-export default function NoteCard({id, title, body, created_at, onNoteDelete, onNoteEdit}: NoteCardProps){
+export default function NoteCard({id, title, body, created_at, onNoteDelete, onNoteEdit, setIsGlobalLoading}: NoteCardProps){
     const dateobj = new Date(created_at)
 
     const deleteNote = (id: number, e: React.MouseEvent)=>{
+        setIsGlobalLoading(true)
         fetch(`http://localhost:8000/notes/${id}`, {
             method:"DELETE",
             headers:{
                 "Content-Type":"application/json"
             }
         }).then(() => onNoteDelete(id))
+        .then(() => setIsGlobalLoading(false))
         .catch(err => console.log(err))
         
         e.stopPropagation();

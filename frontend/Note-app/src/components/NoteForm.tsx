@@ -1,16 +1,19 @@
 import React, { useState } from "react"
 import type { NoteFormProps } from "../types"
 
-export default function NoteForm({editingNote, onNoteAdded, onCancel, onNoteUpdated}: NoteFormProps){
+export default function NoteForm({editingNote, onNoteAdded, onCancel, onNoteUpdated, setIsGlobalLoading, isGlobalLoading}: NoteFormProps){
     const [title, setTitle] = useState(editingNote ? editingNote.title : "")
     const [body, setBody] = useState(editingNote ? editingNote.body : "")
-    const [isLoading, setIsLoading] = useState(false)
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
-
+        if(!title || !body){
+            alert("Please fill all the fields")
+            return;
+        }
+        
         if(editingNote){
-            setIsLoading(true);
+            setIsGlobalLoading(true);
 
             fetch(`http://localhost:8000/notes/${editingNote.id}`, {
                 method: "PATCH",
@@ -27,12 +30,12 @@ export default function NoteForm({editingNote, onNoteAdded, onCancel, onNoteUpda
                 setTitle("")
                 setBody("")
             })
-            .then(() => setIsLoading(false))
-            .catch(() => setIsLoading(false))
+            .then(() => setIsGlobalLoading(false))
+            .catch(() => setIsGlobalLoading(false))
             .catch(err => console.log(err));
         }
         else{
-            setIsLoading(true);
+            setIsGlobalLoading(true);
     
             fetch("http://localhost:8000/notes/",{
                 method:"POST",
@@ -48,8 +51,8 @@ export default function NoteForm({editingNote, onNoteAdded, onCancel, onNoteUpda
                 setTitle("")
                 setBody("")
             })
-            .then(() => setIsLoading(false))
-            .catch(()=> setIsLoading(false))
+            .then(() => setIsGlobalLoading(false))
+            .catch(()=> setIsGlobalLoading(false))
             .catch(err => console.log(err));
         }
     }
@@ -63,7 +66,7 @@ export default function NoteForm({editingNote, onNoteAdded, onCancel, onNoteUpda
                 <p className="Label">Body</p>
                 <textarea name="body" placeholder="Please enter the content of the note" value={body} onChange={(e)=>setBody(e.target.value)}></textarea>
 
-                <button className="submitBtn" type="submit" disabled={isLoading}>{editingNote ? "Update" :"Create"}</button>
+                <button className="submitBtn" type="submit" disabled={isGlobalLoading}>{editingNote ? "Update" :"Create"}</button>
                 <button className="cancelBtn" type="button" onClick={onCancel}>Cancel</button>
             </form>
         </div>

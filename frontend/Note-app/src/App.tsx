@@ -19,6 +19,7 @@ export default function App(){
 
     const [showForm, setShowForm] = useState(false);
     const [editingNote, setEditingNote] = useState<Note | null>(null);
+    const [isGlobalLoading, setIsGlobalLoading] = useState(false);
 
     const onNoteEdit = (note: Note)=>{
         setEditingNote(note)
@@ -45,18 +46,24 @@ export default function App(){
 
     return(
         <div className="Wall">
-            <div className="CreateNote">
-                <div className="plusButton" onClick={()=>{setEditingNote(null); setShowForm(true)}}>+</div>
-                {/* {showForm ? <NoteForm /> : <></>} */}
-                {showForm && <NoteForm onNoteAdded = {onNoteAdded} onNoteUpdated = {onNoteUpdated} onCancel={handleCancel} editingNote={editingNote}/>}
+            {isGlobalLoading ? <div className="LoadingOverlay">
+                    <div className="loading-dots">Loading</div>
+                </div> :
+                <div>
+                    <div className="CreateNote">
+                        <div className="plusButton" onClick={()=>{setEditingNote(null); setShowForm(true)}}>+</div>
+                        {/* {showForm ? <NoteForm /> : <></>} */}
+                        {showForm && <NoteForm onNoteAdded = {onNoteAdded} onNoteUpdated = {onNoteUpdated} onCancel={handleCancel} editingNote={editingNote} setIsGlobalLoading = {setIsGlobalLoading} isGlobalLoading = {isGlobalLoading}/>}
 
-            </div>
-            <div className="NoteGrid">
+                    </div>
+                    <div className="NoteGrid">
 
-                {notes.map(note =>(
-                    < NoteCard onNoteDelete={onNoteDelete} onNoteEdit={onNoteEdit} key={note.id} {...note} />
-                ))}
-            </div> 
+                        {notes.map(note =>(
+                            < NoteCard onNoteDelete={onNoteDelete} onNoteEdit={onNoteEdit} key={note.id} {...note} setIsGlobalLoading={setIsGlobalLoading}/>
+                        ))}
+                    </div> 
+                </div>
+                }
             
         </div>
     )
