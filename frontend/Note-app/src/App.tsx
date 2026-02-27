@@ -8,9 +8,10 @@ import { useState, useEffect } from "react";
 
 export default function App(){
     const [notes, setNotes] = useState<Note[]>([]);
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
     
         useEffect(()=>{
-            fetch("http://localhost:8000/notes/")
+            fetch(`${API_URL}/notes/`)
             .then(res => res.json())
             .then(data => setNotes(data))
             .catch(err => console.error(err));

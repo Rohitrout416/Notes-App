@@ -9,15 +9,10 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:8000",
-    "http://localhost:5173"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,      # Only these domains can access the API
-    allow_credentials=True,     # Necessary if you use cookies or Auth headers
+    allow_origins=["*"],        # Allow all domains to access the API
+    allow_credentials=False,    # Cannot be True when allow_origins is ["*"]
     allow_methods=["*"],        # Allows GET, POST, etc.
     allow_headers=["*"],        # Allows any headers (like Content-Type)
 )
