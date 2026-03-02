@@ -5,67 +5,95 @@ import './App.css'
 import NoteForm from "./components/NoteForm";
 import { useState, useEffect } from "react";
 
+import { AuthProvider, useAuth } from './context/AuthContext';
+import LoginModal from './components/LoginModal';
 
-export default function App(){
+function AppContent() {
     const [notes, setNotes] = useState<Note[]>([]);
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-    
-        useEffect(()=>{
-            fetch(`${API_URL}/notes/`)
+
+    useEffect(() => {
+        fetch(`/api/notes/`)
             .then(res => res.json())
             .then(data => setNotes(data))
             .catch(err => console.error(err));
-        },[]);
-    
+    }, []);
 
     const [showForm, setShowForm] = useState(false);
     const [editingNote, setEditingNote] = useState<Note | null>(null);
     const [isGlobalLoading, setIsGlobalLoading] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
-    const onNoteEdit = (note: Note)=>{
+    const { currentUser, logout, isInitializing } = useAuth();
+
+    const onNoteEdit = (note: Note) => {
         setEditingNote(note)
         setShowForm(true)
     }
 
-    const onNoteAdded = (newNote: Note) =>{
+    const onNoteAdded = (newNote: Note) => {
         setNotes([newNote, ...notes])
         setShowForm(false)
     }
-    
-    const handleCancel = () =>{
+
+    const handleCancel = () => {
         setShowForm(false)
     }
-    
-    const onNoteDelete = (id: number) =>{
+
+    const onNoteDelete = (id: number) => {
         setNotes(notes.filter(note => note.id !== id))
     }
-    
+
     const onNoteUpdated = (updatedNote: Note) => {
         setNotes(notes.map(note => note.id === updatedNote.id ? updatedNote : note));
         setShowForm(false);
     }
 
-    return(
+    return (
         <div className="Wall">
             {isGlobalLoading ? <div className="LoadingOverlay">
-                    <div className="loading-dots">Loading</div>
-                </div> :
+                <div className="loading-dots">Loading</div>
+            </div> :
                 <div>
+                    <header className="app-header">
+                        <h1>Notes Wall</h1>
+                        <div className="auth-controls">
+                            {isInitializing ? (
+                                <span className="auth-loading">Loading...</span>
+                            ) : currentUser ? (
+                                <div className="user-profile">
+                                    <span className="user-email">{currentUser.email}</span>
+                                    <button onClick={logout} className="logout-btn">Log Out</button>
+                                </div>
+                            ) : (
+                                <button onClick={() => setShowLoginModal(true)} className="login-btn">Log In</button>
+                            )}
+                        </div>
+                    </header>
                     <div className="CreateNote">
-                        <div className="plusButton" onClick={()=>{setEditingNote(null); setShowForm(true)}}>+</div>
+                        {currentUser && (
+                            <div className="plusButton" onClick={() => { setEditingNote(null); setShowForm(true) }}>+</div>
+                        )}
                         {/* {showForm ? <NoteForm /> : <></>} */}
-                        {showForm && <NoteForm onNoteAdded = {onNoteAdded} onNoteUpdated = {onNoteUpdated} onCancel={handleCancel} editingNote={editingNote} setIsGlobalLoading = {setIsGlobalLoading} isGlobalLoading = {isGlobalLoading}/>}
+                        {showForm && <NoteForm onNoteAdded={onNoteAdded} onNoteUpdated={onNoteUpdated} onCancel={handleCancel} editingNote={editingNote} setIsGlobalLoading={setIsGlobalLoading} isGlobalLoading={isGlobalLoading} />}
 
                     </div>
                     <div className="NoteGrid">
 
-                        {notes.map(note =>(
-                            < NoteCard onNoteDelete={onNoteDelete} onNoteEdit={onNoteEdit} key={note.id} {...note} setIsGlobalLoading={setIsGlobalLoading}/>
+                        {notes.map(note => (
+                            < NoteCard onNoteDelete={onNoteDelete} onNoteEdit={onNoteEdit} key={note.id} {...note} setIsGlobalLoading={setIsGlobalLoading} />
                         ))}
-                    </div> 
+                    </div>
                 </div>
-                }
-            
+            }
+            {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
         </div>
     )
+}
+
+export default function App() {
+    return (
+        <AuthProvider>
+            <AppContent />
+        </AuthProvider>
+    );
 }

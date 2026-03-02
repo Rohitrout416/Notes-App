@@ -1,11 +1,13 @@
 import type { NoteCardProps } from "../types"
-export default function NoteCard({ id, title, body, created_at, onNoteDelete, onNoteEdit, setIsGlobalLoading }: NoteCardProps) {
+import { useAuth } from "../context/AuthContext"
+
+export default function NoteCard({ id, title, body, created_at, user_id, onNoteDelete, onNoteEdit, setIsGlobalLoading }: NoteCardProps) {
     const dateobj = new Date(created_at)
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+    const { currentUser } = useAuth();
 
     const deleteNote = (id: number, e: React.MouseEvent) => {
         setIsGlobalLoading(true)
-        fetch(`${API_URL}/notes/${id}`, {
+        fetch(`/api/notes/${id}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json"
@@ -21,8 +23,14 @@ export default function NoteCard({ id, title, body, created_at, onNoteDelete, on
 
     // }
     return (
-        <div className="Note" onClick={() => onNoteEdit({ id, title, body, created_at, user_id: 1 })}>
-            <span className="deleteNote" onClick={(e) => deleteNote(id, e)}>❌</span>
+        <div className="Note" onClick={() => {
+            if (currentUser && currentUser.id === user_id) {
+                onNoteEdit({ id, title, body, created_at, user_id })
+            }
+        }}>
+            {currentUser && currentUser.id === user_id && (
+                <span className="deleteNote" onClick={(e) => deleteNote(id, e)}>❌</span>
+            )}
             <div className="title">
                 <h3>{title}</h3>
                 <p>{dateobj.toDateString()}</p>
@@ -30,4 +38,4 @@ export default function NoteCard({ id, title, body, created_at, onNoteDelete, on
             <p>{body}</p>
         </div>
     )
-}   
+}

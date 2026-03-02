@@ -4,7 +4,6 @@ import type { NoteFormProps } from "../types"
 export default function NoteForm({ editingNote, onNoteAdded, onCancel, onNoteUpdated, setIsGlobalLoading, isGlobalLoading }: NoteFormProps) {
     const [title, setTitle] = useState(editingNote ? editingNote.title : "")
     const [body, setBody] = useState(editingNote ? editingNote.body : "")
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -16,7 +15,7 @@ export default function NoteForm({ editingNote, onNoteAdded, onCancel, onNoteUpd
         if (editingNote) {
             setIsGlobalLoading(true);
 
-            fetch(`${API_URL}/notes/${editingNote.id}`, {
+            fetch(`/api/notes/${editingNote.id}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"
@@ -38,7 +37,7 @@ export default function NoteForm({ editingNote, onNoteAdded, onCancel, onNoteUpd
         else {
             setIsGlobalLoading(true);
 
-            fetch(`${API_URL}/notes/`, {
+            fetch(`/api/notes/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

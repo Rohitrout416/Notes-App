@@ -9,7 +9,7 @@ class Note(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     body = Column(String)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     created_at = Column(DateTime, default=datetime.now)
     
     user = relationship("User", back_populates="notes")
@@ -17,8 +17,9 @@ class Note(Base):
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key = True, index = True)
-    name = Column(String, index = True)
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
 
-    notes = relationship("Note", back_populates="user", cascade="all, delete")
+    notes = relationship("Note", back_populates="user", cascade="all, delete-orphan")
 

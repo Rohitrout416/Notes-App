@@ -27,11 +27,13 @@ FROM nginx:alpine
 # Copy the built assets from the previous stage to Nginx's web root
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copy custom Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy custom Nginx config as a TEMPLATE (contains ${VITE_API_URL} placeholder)
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 # Expose port 80
 EXPOSE 80
 
-# Start Nginx
+# nginx:alpine auto-runs envsubst on /etc/nginx/templates/*.template at startup,
+# outputting the result to /etc/nginx/conf.d/, reading VITE_API_URL from the environment.
+# This means we can update the backend URL via ECS env var without rebuilding the image!
 CMD ["nginx", "-g", "daemon off;"]

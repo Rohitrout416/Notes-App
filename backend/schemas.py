@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional
 from pydantic import ConfigDict
 from datetime import datetime
@@ -8,19 +8,19 @@ class NoteBase(BaseModel):
     body: str
 
 class NoteCreate(NoteBase):
-    user_id: Optional[int] = None
+    pass
 
 class Note(NoteBase):
     id: int
-    user_id: Optional[int] = None
+    user_id: int
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
 class UserBase(BaseModel):
-    name: str
+    email: EmailStr
 
 class UserCreate(UserBase):
-    pass
+    password: str
 
 class User(UserBase):
     id: int
@@ -29,8 +29,16 @@ class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
 class UserUpdate(BaseModel):
-    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
 
 class NoteUpdate(BaseModel):
     title: Optional[str] = None
     body: Optional[str] = None
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
